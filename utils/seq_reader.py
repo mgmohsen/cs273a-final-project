@@ -21,6 +21,7 @@ class SequenceReader():
         self.k = k
         self.data_file = data_file
         self.entire_features = {'True': [], 'False': []}
+        self.setup_keys()
 
     # read the entire sequence file
     # store feature vector and metadata for each sequence based on whether
@@ -93,6 +94,11 @@ class SequenceReader():
         print "# of Negative sequence with {} expression : {}".format(self.target, len(self.entire_features['False']))
         f.close()
 
+    def setup_keys(self):
+        _vector_dict = construct_vector(self.k)
+        _vector_dict = sum_reverse_complement(_vector_dict)
+        self.keys = _vector_dict.keys()
+
     # helper function for computing feature vector for given sequence
     def get_feature(self, seq):
         # initialize vector with dimension 4^k
@@ -105,12 +111,18 @@ class SequenceReader():
             except KeyError:
                 continue
         # sum of reverse complement counts into one as mentioned in the paper
-        vector_dict = sum_reverse_complement(vector_dict)
+        values = []
+        for key in self.keys:
+            reverse_key = reverse_complement(key)
+            if key == reverse_key:
+                values.append(vector_dict[key])
+            else:
+                values.append(vector_dict[key] + vector_dict[reverse_key])
         # convert values into numpy arrays
-        feature = np.array(vector_dict.values())
+        feature = np.array(values)
         # normalize with l2 norm -> make to unit vector
         return feature / np.linalg.norm(feature)
 
     # getter function for fetching the entire entire_features
     def get_entire_features(self):
-        return self.entire_features
+        return self.keys, self.entire_features

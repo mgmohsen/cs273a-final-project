@@ -12,10 +12,11 @@ def construct_vector(k):
         vector_dict[key] = 0
     return vector_dict
 
+# helper function for retrieving reverse complement of a given DNA
+def reverse_complement(dna):
+    return ''.join([COMPLEMENT[base] for base in dna[::-1]])
+
 def sum_reverse_complement(vector_dict):
-    # helper function for retrieving reverse complement of a given DNA
-    def reverse_complement(dna):
-        return ''.join([COMPLEMENT[base] for base in dna[::-1]])
     # for all 4^k keys
     keys = vector_dict.keys()
     for key in keys:
